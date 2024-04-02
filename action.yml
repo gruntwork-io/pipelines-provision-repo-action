@@ -8,23 +8,24 @@ inputs:
   new_account_name:
     description: ""
     required: true
-  branch:
-    description: ""
-    required: true
-  delegate_repo_name:
-    description: ""
-    required: true
 
 runs:
   using: composite
   steps:
+    - name: "[ProvisionDelegatedAccount]: Read account request"
+      id: account_request
+      uses: gruntwork-io-team/pipelines-bootstrap@main
+      with:
+        new_account_name: ${{ inputs.new_account_name }}
+        terragrunt_command: ${{ inputs.terragrunt_command }}
+
     - name: "[ProvisionDelegatedAccount] Create new delegated repo"
       if: ${{ contains(inputs.terragrunt_command , 'apply') }}
       shell: bash
       env:
         GH_TOKEN: ${{secrets.MANAGE_REPOS_TOKEN }}
         GH_ORG: ${{github.repository_owner }}
-        GH_DELEGATED_REPO_NAME: ${{ inputs.delegate_repo_name }}
+        GH_DELEGATED_REPO_NAME: ${{ steps.account_request.outputs.delegate_repo_name }}
       run: |
         # Check if the repo exists before trying to create it
         GH_REPO_STATUS_CODE="$(curl --silent --write-out '%{http_code}' --output /dev/null \
@@ -63,7 +64,7 @@ runs:
       env:
         GH_TOKEN: ${{secrets.MANAGE_REPOS_TOKEN }}
         GH_ORG: ${{github.repository_owner }}
-        GH_DELEGATED_REPO_NAME: ${{ inputs.delegate_repo_name }}
+        GH_DELEGATED_REPO_NAME: ${{ steps.account_request.outputs.delegate_repo_name }}
       run: |
         echo "Setting branch protection rules for $GH_ORG/$GH_DELEGATED_REPO_NAME. See https://docs.gruntwork.io/pipelines/security/branch-protection for more information on recommended rules."
         curl -L \
@@ -80,7 +81,7 @@ runs:
       env:
         GH_TOKEN: ${{secrets.MANAGE_REPOS_TOKEN }}
         GH_ORG: ${{github.repository_owner }}
-        GH_DELEGATED_REPO_NAME: ${{ inputs.delegate_repo_name }}
+        GH_DELEGATED_REPO_NAME: ${{ steps.account_request.outputs.delegate_repo_name }}
         GH_CI_RO_USER: ${{env.GITHUB_CI_READONLY_USER }}
       run: |
         echo "Add CI Read Only User as Read-Only Collaborator on the new repo."
@@ -96,8 +97,8 @@ runs:
       uses: actions/checkout@v4
       with:
         token: ${{secrets.MANAGE_REPOS_TOKEN }}
-        repository: ${{github.repository_owner }}/${{ inputs.delegate_repo_name }}
-        path: ${{ inputs.delegate_repo_name }}
+        repository: ${{github.repository_owner }}/${{ steps.account_request.outputs.delegate_repo_name }}
+        path: ${{ steps.account_request.outputs.delegate_repo_name }}
         ref: main
         fetch-depth: 0
 
@@ -120,18 +121,18 @@ runs:
     - name: "[ProvisionDelegatedAccount] Run boilerplate to scaffold new delegated repo"
       if: ${{ contains(inputs.terragrunt_command , 'apply') }}
       shell: bash
-      working-directory: ${{ inputs.delegate_repo_name }}
+      working-directory: ${{ steps.account_request.outputs.delegate_repo_name }}
       env:
-        TAGS: ${{ steps.bootstrap.outputs.tags }}
-        WORKING_DIRECTORY: ${{ steps.bootstrap.outputs.working_directory }}
-        INFRA_LIVE_DIRECTORY: ${{ steps.bootstrap.outputs.infra_live_directory }}
-        ORG_NAME_PREFIX: ${{ steps.bootstrap.outputs.org_name_prefix }}
-        AWS_REGION: ${{ steps.bootstrap.outputs.aws_region }}
-        INFRA_LIVE_REPO_NAME: ${{ inputs.delegate_repo_name }}
-        TERRAFORM_VERSION: ${{ steps.bootstrap.outputs.s.terraform_version }}
-        TERRAGRUNT_VERSION: ${{ steps.bootstrap.outputs.terragrunt_version }}
-        CREATE_VPC: ${{ steps.bootstrap.outputs.create_vpc }}
-        CATALOG_REPOSITORIES: ${{ steps.bootstrap.outputs.catalog_repositories }}
+        TAGS: ${{ steps.account_request.outputs.tags }}
+        WORKING_DIRECTORY: ${{ steps.account_request.outputs.working_directory }}
+        INFRA_LIVE_DIRECTORY: ${{ steps.account_request.outputs.infra_live_directory }}
+        ORG_NAME_PREFIX: ${{ steps.account_request.outputs.org_name_prefix }}
+        AWS_REGION: ${{ steps.account_request.outputs.aws_region }}
+        INFRA_LIVE_REPO_NAME: ${{ steps.account_request.outputs.delegate_repo_name }}
+        TERRAFORM_VERSION: ${{ steps.account_request.outputs.terraform_version }}
+        TERRAGRUNT_VERSION: ${{ steps.account_request.outputs.terragrunt_version }}
+        CREATE_VPC: ${{ steps.account_request.outputs.create_vpc }}
+        CATALOG_REPOSITORIES: ${{ steps.account_request.outputs.catalog_repositories }}
       run: |
         # Convert list of accounts to Bash array. We use working_directory here because GW Pipelines will configure
         # its name as a comma-separated list of account names.
@@ -168,7 +169,7 @@ runs:
       uses: peter-evans/create-pull-request@v6
       with:
         base: main
-        path: ${{ inputs.delegate_repo_name }}
+        path: ${{ steps.account_request.outputs.delegate_repo_name }}
         token: ${{secrets.MANAGE_REPOS_TOKEN }}
         branch: "bootstrap-repository"
         commit-message: "Bootstrap infrastructure-live repository"
@@ -181,7 +182,7 @@ runs:
       if: ${{ contains(inputs.terragrunt_command , 'apply') }}
       env:
         PR_URL: ${{steps.create_scaffolding_pr.outputs.pull-request-url }}
-        DELEGATED_REPO_NAME: ${{ inputs.delegate_repo_name }}
+        DELEGATED_REPO_NAME: ${{ steps.account_request.outputs.delegate_repo_name }}
       run: |
         echo "### Successfully bootstrapped $DELEGATED_REPO_NAME! 🚀" >> "$GITHUB_STEP_SUMMARY"
         echo "[Link to Pull Request]($PR_URL)" >> "$GITHUB_STEP_SUMMARY"
