@@ -11,6 +11,9 @@ inputs:
   manage_repo_token:
     description: ""
     required: true
+  gruntwork_code_access_token:
+    description: ""
+    required: true
 
 runs:
   using: composite
@@ -116,7 +119,7 @@ runs:
       if: ${{ contains(inputs.terragrunt_command , 'apply') }}
       uses: actions/checkout@v4
       with:
-        token: ${{secrets.GRUNTWORK_CODE_ACCESS_TOKEN }}
+        token: ${{ inputs.gruntwork_code_access_token }}
         repository: gruntwork-io/terraform-aws-architecture-catalog
         path: terraform-aws-architecture-catalog
         ref: ${{env.ARCH_CATALOG_VERSION }}
