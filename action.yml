@@ -8,6 +8,9 @@ inputs:
   new_account_name:
     description: ""
     required: true
+  manage_repo_token:
+    description: ""
+    required: true
 
 runs:
   using: composite
@@ -23,7 +26,7 @@ runs:
       if: ${{ contains(inputs.terragrunt_command , 'apply') }}
       shell: bash
       env:
-        GH_TOKEN: ${{secrets.MANAGE_REPOS_TOKEN }}
+        GH_TOKEN: ${{ inputs.manage_repo_token }}
         GH_ORG: ${{github.repository_owner }}
         GH_DELEGATED_REPO_NAME: ${{ steps.account_request.outputs.delegate_repo_name }}
       run: |
@@ -62,7 +65,7 @@ runs:
       shell: bash
       if: ${{ contains(inputs.terragrunt_command , 'apply') }}
       env:
-        GH_TOKEN: ${{secrets.MANAGE_REPOS_TOKEN }}
+        GH_TOKEN: ${{ inputs.manage_repo_token }}
         GH_ORG: ${{github.repository_owner }}
         GH_DELEGATED_REPO_NAME: ${{ steps.account_request.outputs.delegate_repo_name }}
       run: |
@@ -79,7 +82,7 @@ runs:
       if: ${{ contains(inputs.terragrunt_command , 'apply') }}
       shell: bash
       env:
-        GH_TOKEN: ${{secrets.MANAGE_REPOS_TOKEN }}
+        GH_TOKEN: ${{ inputs.manage_repo_token }}
         GH_ORG: ${{github.repository_owner }}
         GH_DELEGATED_REPO_NAME: ${{ steps.account_request.outputs.delegate_repo_name }}
         GH_CI_RO_USER: ${{env.GITHUB_CI_READONLY_USER }}
@@ -96,7 +99,7 @@ runs:
       if: ${{ contains(inputs.terragrunt_command , 'apply') }}
       uses: actions/checkout@v4
       with:
-        token: ${{secrets.MANAGE_REPOS_TOKEN }}
+        token: ${{ inputs.manage_repo_token }}
         repository: ${{github.repository_owner }}/${{ steps.account_request.outputs.delegate_repo_name }}
         path: ${{ steps.account_request.outputs.delegate_repo_name }}
         ref: main
@@ -170,7 +173,7 @@ runs:
       with:
         base: main
         path: ${{ steps.account_request.outputs.delegate_repo_name }}
-        token: ${{secrets.MANAGE_REPOS_TOKEN }}
+        token: ${{ inputs.manage_repo_token }}
         branch: "bootstrap-repository"
         commit-message: "Bootstrap infrastructure-live repository"
         title: "Bootstrap infrastructure-live repository"
