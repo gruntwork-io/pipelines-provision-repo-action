@@ -107,8 +107,8 @@ runs:
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
       shell: bash
       run: |
-        curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/main/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version "$GRUNTWORK_INSTALLER_VERSION"
-        gruntwork-install --binary-name boilerplate --repo https://github.com/gruntwork-io/boilerplate --tag "$BOILERPLATE_VERSION"
+        curl -Ls https://raw.githubusercontent.com/gruntwork-io/gruntwork-installer/main/bootstrap-gruntwork-installer.sh | bash /dev/stdin --version "${{ steps.gruntwork_context.outputs.gruntwork_installer_version }}"
+        gruntwork-install --binary-name boilerplate --repo https://github.com/gruntwork-io/boilerplate --tag "${{ steps.gruntwork_context.outputs.boilerplate_version }}"
 
     - name: "[ProvisionDelegatedAccount] Checkout architecture catalog"
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
@@ -117,7 +117,7 @@ runs:
         token: ${{ inputs.gruntwork_code_access_token }}
         repository: gruntwork-io/terraform-aws-architecture-catalog
         path: terraform-aws-architecture-catalog
-        ref: ${{env.ARCH_CATALOG_VERSION }}
+        ref: ${{ steps.gruntwork_context.outputs.arch_catalog_version }}
 
     - name: "[ProvisionDelegatedAccount] Run boilerplate to scaffold new delegated repo"
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
@@ -130,7 +130,7 @@ runs:
         ORG_NAME_PREFIX: ${{ steps.gruntwork_context.outputs.org_name_prefix }}
         AWS_REGION: ${{ steps.gruntwork_context.outputs.aws_region }}
         INFRA_LIVE_REPO_NAME: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
-        TERRAFORM_VERSION: ${{ steps.gruntwork_context.outputs.terraform_version }}
+        TOFU_VERSION: ${{ steps.gruntwork_context.outputs.tofu_version }}
         TERRAGRUNT_VERSION: ${{ steps.gruntwork_context.outputs.terragrunt_version }}
         CREATE_VPC: ${{ steps.gruntwork_context.outputs.create_vpc }}
         CATALOG_REPOSITORIES: ${{ steps.gruntwork_context.outputs.catalog_repositories }}
@@ -157,7 +157,7 @@ runs:
           --var InfraLiveRepoName="$INFRA_LIVE_REPO_NAME" \
           --var InfraModulesRepoName="$INFRA_MODULES_REPO_NAME" \
           --var InfraModulesReleaseVersion="$INFRA_MODULES_RELEASE_VERSION" \
-          --var TerraformVersion="$TERRAFORM_VERSION" \
+          --var TerraformVersion="$tofu_version" \
           --var TerragruntVersion="$TERRAGRUNT_VERSION" \
           --var DefaultTags="$TAGS" \
           --var VPCCreated="$CREATE_VPC" \
