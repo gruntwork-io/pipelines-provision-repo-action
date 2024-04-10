@@ -118,7 +118,7 @@ runs:
         token: ${{ inputs.gruntwork_code_access_token }}
         repository: gruntwork-io/terraform-aws-architecture-catalog
         path: terraform-aws-architecture-catalog
-        ref: ${{ steps.gruntwork_context.outputs.arch_catalog_version }}
+        ref: main #${{ steps.gruntwork_context.outputs.arch_catalog_version }}
 
     - name: "[ProvisionDelegatedAccount] Run boilerplate to scaffold new delegated repo"
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
