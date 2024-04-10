@@ -127,13 +127,13 @@ runs:
       env:
         TAGS: ${{ steps.gruntwork_context.outputs.tags }}
         WORKING_DIRECTORY: ${{ steps.gruntwork_context.outputs.working_directory }}
-        INFRA_LIVE_DIRECTORY: ${{ steps.gruntwork_context.outputs.infra_live_directory }}
         ORG_NAME_PREFIX: ${{ steps.gruntwork_context.outputs.org_name_prefix }}
         AWS_REGION: ${{ steps.gruntwork_context.outputs.aws_region }}
         INFRA_LIVE_REPO_NAME: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
         TOFU_VERSION: ${{ steps.gruntwork_context.outputs.tofu_version }}
         TERRAGRUNT_VERSION: ${{ steps.gruntwork_context.outputs.terragrunt_version }}
         CREATE_VPC: ${{ steps.gruntwork_context.outputs.create_vpc }}
+        # FIXME: This is not populated, but shouldn't block progress
         CATALOG_REPOSITORIES: ${{ steps.gruntwork_context.outputs.catalog_repositories }}
       run: |
         # Convert list of accounts to Bash array. We use working_directory here because GW Pipelines will configure
@@ -144,21 +144,21 @@ runs:
         account_names_as_json_list="$(jq --compact-output --raw-output --monochrome-output --null-input '$ARGS.positional' --args -- "${account_names[@]}")"
 
         # Use yq to filter accounts.yml to just the accounts we created, producing JSON output
-        AWS_ACCOUNTS="$(yq --no-colors -o=json -I=0 pick\("$account_names_as_json_list"\) "../$INFRA_LIVE_DIRECTORY/accounts.yml")"
+        AWS_ACCOUNTS="$(yq --no-colors -o=json -I=0 pick\("$account_names_as_json_list"\) "../accounts.yml")"
 
         # Run boilerplate to scaffold out the delegated infra-live repo contents
         boilerplate \
-          --template-url ../terraform-aws-architecture-catalog//templates/devops-foundations-infrastructure-live-delegated \
+          --template-url ../terraform-aws-architecture-catalog//templates/devops-foundations-infrastructure-live-delegated-v3 \
           --output-folder . \
           --var AWSAccounts="$AWS_ACCOUNTS" \
           --var OrgNamePrefix="$ORG_NAME_PREFIX" \
           --var DefaultRegion="$AWS_REGION" \
-          --var RepoBaseUrl=github.com/{{ .GithubOrg }} \
-          --var GithubOrg={{ .GithubOrg }} \
+          --var RepoBaseUrl=github.com/gruntwork-io-team \
+          --var GithubOrg=gruntwork-io-team \
           --var InfraLiveRepoName="$INFRA_LIVE_REPO_NAME" \
           --var InfraModulesRepoName="$INFRA_MODULES_REPO_NAME" \
           --var InfraModulesReleaseVersion="$INFRA_MODULES_RELEASE_VERSION" \
-          --var TerraformVersion="$tofu_version" \
+          --var TerraformVersion="$TOFU_VERSION" \
           --var TerragruntVersion="$TERRAGRUNT_VERSION" \
           --var DefaultTags="$TAGS" \
           --var VPCCreated="$CREATE_VPC" \
