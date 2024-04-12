@@ -83,8 +83,7 @@ runs:
         GH_TOKEN: ${{ inputs.manage_repo_token }}
         GH_ORG: ${{github.repository_owner }}
         GH_DELEGATED_REPO_NAME: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
-        GH_CI_RO_USER: ZachGoldberg
-        #${{ steps.gruntwork_context.outputs.ci_readonly_user }}
+        GH_CI_RO_USER: ${{ steps.gruntwork_context.outputs.ci_readonly_user }}
       run: |
         echo "Add CI Read Only User as Read-Only Collaborator on the new repo."
         gh api \
@@ -118,7 +117,7 @@ runs:
         token: ${{ inputs.gruntwork_code_access_token }}
         repository: gruntwork-io/terraform-aws-architecture-catalog
         path: terraform-aws-architecture-catalog
-        ref: main #${{ steps.gruntwork_context.outputs.arch_catalog_version }}
+        ref: ${{ steps.gruntwork_context.outputs.arch_catalog_version }}
 
     - name: "[ProvisionDelegatedAccount] Run boilerplate to scaffold new delegated repo"
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
@@ -130,6 +129,8 @@ runs:
         ORG_NAME_PREFIX: ${{ steps.gruntwork_context.outputs.org_name_prefix }}
         AWS_REGION: ${{ steps.gruntwork_context.outputs.aws_region }}
         INFRA_LIVE_REPO_NAME: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
+        INFRA_MODULES_REPO_NAME: ${{ steps.gruntwork_context.outputs.infra_modules_repo_name }}
+        INFRA_MODULES_RELEASE_VERSION: ${{ steps.gruntwork_context.outputs.infra_modules_release_version }}
         TOFU_VERSION: ${{ steps.gruntwork_context.outputs.tofu_version }}
         TERRAGRUNT_VERSION: ${{ steps.gruntwork_context.outputs.terragrunt_version }}
         CREATE_VPC: ${{ steps.gruntwork_context.outputs.create_vpc }}
