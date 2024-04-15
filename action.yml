@@ -104,13 +104,13 @@ runs:
       run: |
         echo "Add additional collaborators to the new repo."
         for collaborator in $(jq -c '.[]' <<< "$GITHUB_COLLABORATORS"); do
-          collaborator_name=$(echo $collaborator | jq -r '.collaborator')
+          team_name=$(echo $collaborator | jq -r '.team')
           collaborator_permission=$(echo $collaborator | jq -r '.permission')
           gh api \
             --method PUT \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "/repos/$GH_ORG/$GH_DELEGATED_REPO_NAME/collaborators/$collaborator_name" \
+            "/orgs/$GH_ORG/teams/$team_name/repos/$GH_ORG/$GH_DELEGATED_REPO_NAME" \
             -f permission="$collaborator_permission"
         done
 
