@@ -1,10 +1,10 @@
 name: Bootstrap a new account in access-control repo
 description: "Sets up a new AWS account and basic roles inside the access control repo"
 inputs:
-  manage_repo_token:
+  ORG_REPO_ADMIN_TOKEN:
     description: ""
     required: true
-  gruntwork_code_access_token:
+  PIPELINES_READ_TOKEN:
     description: ""
     required: true
   gruntwork_context:
@@ -24,7 +24,7 @@ runs:
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.manage_repo_token }}
+        GH_TOKEN: ${{ inputs.ORG_REPO_ADMIN_TOKEN }}
         GH_ORG: ${{github.repository_owner }}
         GH_DELEGATED_REPO_NAME: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
       run: |
@@ -63,7 +63,7 @@ runs:
       shell: bash
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
       env:
-        GH_TOKEN: ${{ inputs.manage_repo_token }}
+        GH_TOKEN: ${{ inputs.ORG_REPO_ADMIN_TOKEN }}
         GH_ORG: ${{github.repository_owner }}
         GH_DELEGATED_REPO_NAME: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
       run: |
@@ -80,7 +80,7 @@ runs:
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.manage_repo_token }}
+        GH_TOKEN: ${{ inputs.ORG_REPO_ADMIN_TOKEN }}
         GH_ORG: ${{github.repository_owner }}
         GH_DELEGATED_REPO_NAME: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
         GH_CI_RO_USER: ${{ steps.gruntwork_context.outputs.ci_readonly_user }}
@@ -97,7 +97,7 @@ runs:
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.manage_repo_token }}
+        GH_TOKEN: ${{ inputs.ORG_REPO_ADMIN_TOKEN }}
         GH_ORG: ${{github.repository_owner }}
         GH_DELEGATED_REPO_NAME: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
         GITHUB_COLLABORATORS: ${{ steps.gruntwork_context.outputs.github_collaborators }}
@@ -118,7 +118,7 @@ runs:
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
       uses: actions/checkout@v4
       with:
-        token: ${{ inputs.manage_repo_token }}
+        token: ${{ inputs.ORG_REPO_ADMIN_TOKEN }}
         repository: ${{github.repository_owner }}/${{ steps.gruntwork_context.outputs.delegate_repo_name }}
         path: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
         ref: main
@@ -135,7 +135,7 @@ runs:
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
       uses: actions/checkout@v4
       with:
-        token: ${{ inputs.gruntwork_code_access_token }}
+        token: ${{ inputs.PIPELINES_READ_TOKEN }}
         repository: gruntwork-io/terraform-aws-architecture-catalog
         path: terraform-aws-architecture-catalog
         ref: ${{ steps.gruntwork_context.outputs.arch_catalog_version }}
@@ -193,7 +193,7 @@ runs:
       with:
         base: main
         path: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
-        token: ${{ inputs.manage_repo_token }}
+        token: ${{ inputs.ORG_REPO_ADMIN_TOKEN }}
         branch: "bootstrap-repository"
         commit-message: "Bootstrap infrastructure-live repository"
         title: "Bootstrap infrastructure-live repository"
