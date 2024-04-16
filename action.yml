@@ -105,7 +105,7 @@ runs:
         echo "Add additional collaborators to the new repo."
         for collaborator in $(jq -c '.[]' <<< "$GITHUB_COLLABORATORS"); do
           team_name=$(echo $collaborator | jq -r '.team')
-          collaborator_permission=$(echo $collaborator | jq -r '.permission')
+          collaborator_permission=$(echo $collaborator | jq -r '.permission // "pull"')
           gh api \
             --method PUT \
             -H "Accept: application/vnd.github+json" \
