@@ -76,23 +76,6 @@ runs:
           "https://api.github.com/repos/$GH_ORG/$GH_DELEGATED_REPO_NAME/branches/main/protection" \
           -d '{ "required_status_checks": { "strict": true, "checks": [ ] }, "required_pull_request_reviews": { "require_code_owner_reviews": true, "require_last_push_approval": true, "required_approving_review_count": 1 }, "enforce_admins": false, "restrictions": null }'
 
-    - name: "[ProvisionDelegatedAccount] Assign ci-user as repo collaborator"
-      if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
-      shell: bash
-      env:
-        GH_TOKEN: ${{ inputs.ORG_REPO_ADMIN_TOKEN }}
-        GH_ORG: ${{github.repository_owner }}
-        GH_DELEGATED_REPO_NAME: ${{ steps.gruntwork_context.outputs.delegate_repo_name }}
-        GH_CI_RO_USER: ${{ steps.gruntwork_context.outputs.ci_readonly_user }}
-      run: |
-        echo "Add CI Read Only User as Read-Only Collaborator on the new repo."
-        gh api \
-          --method PUT \
-          -H "Accept: application/vnd.github+json" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          "/repos/$GH_ORG/$GH_DELEGATED_REPO_NAME/collaborators/$GH_CI_RO_USER" \
-          -f permission='read'
-
     - name: "[ProvisionDelegatedAccount] Assign additional collaborators to the new repo"
       if: ${{ contains(steps.gruntwork_context.outputs.terragrunt_command , 'apply') }}
       shell: bash
