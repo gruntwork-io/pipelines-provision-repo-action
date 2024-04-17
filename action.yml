@@ -10,6 +10,9 @@ inputs:
   gruntwork_context:
     description: "Gruntwork Context From the Gruntwork Bootstrap step"
     required: true
+  access_control_pull_request_url:
+    description: "URL to the access-control pull request"
+    required: true
 
 runs:
   using: composite
@@ -182,6 +185,10 @@ runs:
         title: "Bootstrap infrastructure-live repository"
         body: |
           This pull request adds all code required to set up your `infrastructure-live` repository.
+
+          > [!TIP]
+          > The first CI run fails due to the parallel generation of the Pipelines, OIDC, roles in this [access-control pull request](${{ inputs.access_control_pull_request_url }}).
+          > Once the access-control pull request has been merged, rerun the CI Job and the AWS Authentication required for CI will succeed.
 
     - name: "[ProvisionDelegatedAccount] Show Pull Request URL in Summary"
       shell: bash
