@@ -19,7 +19,7 @@ runs:
   steps:
     - name: "[ProvisionDelegatedAccount]: Read gruntwork context"
       id: gruntwork_context
-      uses: gruntwork-io-team/pipelines-bootstrap@main
+      uses: gruntwork-io/pipelines-bootstrap@main
       with:
         cache: ${{ inputs.gruntwork_context }}
 
@@ -160,8 +160,8 @@ runs:
           --var AWSAccounts="$AWS_ACCOUNTS" \
           --var OrgNamePrefix="$ORG_NAME_PREFIX" \
           --var DefaultRegion="$AWS_REGION" \
-          --var RepoBaseUrl=github.com/gruntwork-io-team \
-          --var GithubOrg=gruntwork-io-team \
+          --var RepoBaseUrl=github.com/gruntwork-io \
+          --var GithubOrg=gruntwork-io \
           --var InfraLiveRepoName="$INFRA_LIVE_REPO_NAME" \
           --var InfraModulesRepoName="$INFRA_MODULES_REPO_NAME" \
           --var InfraModulesReleaseVersion="$INFRA_MODULES_RELEASE_VERSION" \
