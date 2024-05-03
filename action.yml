@@ -19,7 +19,7 @@ runs:
   steps:
     - name: "[ProvisionDelegatedAccount]: Read gruntwork context"
       id: gruntwork_context
-      uses: gruntwork-io/pipelines-bootstrap@v0.0.2
+      uses: gruntwork-io/pipelines-bootstrap@statusupdates
       with:
         cache: ${{ inputs.gruntwork_context }}
 
